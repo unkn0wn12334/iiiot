@@ -1,0 +1,210 @@
+// --------------------------------------------------------------
+// 🔔 ALERT MESSAGE SYSTEM USING ESPwroom32 + POTENTIOMETER
+// Objective: Read analog input from potentiometer and alert when
+// the value crosses a threshold (simulating environmental change).
+// --------------------------------------------------------------
+
+// 🟢 Define constants
+const int potPin = 34;      // Analog input pin connected to potentiometer output
+const int threshold = 2500; // Value above which we trigger an alert
+
+/*
+💡 ESP32 has multiple ADC (Analog-to-Digital Converter) pins.
+   Pin 34 is one of the ADC1 pins — it reads analog voltage 
+   from 0V to 3.3V and converts it into a digital number 
+   between 0 and 4095 (since it’s a 12-bit ADC: 2^12 = 4096 levels).
+*/
+
+
+void setup() {
+  Serial.begin(115200);  
+  /*
+  🧩 Serial.begin(115200)
+     - Starts serial communication between ESP32 and computer.
+     - 115200 is the baud rate (bits per second), meaning data 
+       is transferred at 115200 bits/sec through USB serial port.
+     - This allows us to see sensor readings and alerts in the Serial Monitor.
+  */
+
+  delay(1000);
+  /*
+  ⏱ delay(1000)
+     - Waits for 1 second.
+     - Gives time for the Serial Monitor and ADC hardware to stabilize.
+  */
+
+  Serial.println("System Ready: Monitoring Environment...");
+  /*
+  🖥 Serial.println()
+     - Prints the message on the Serial Monitor (with a newline at the end).
+     - Used here to indicate system startup.
+  */
+}
+
+
+void loop() {
+  int sensorValue = analogRead(potPin);
+  /*
+  🎛 analogRead(potPin)
+     - Reads the voltage at the potentiometer (0V to 3.3V) and 
+       converts it into a digital value (0–4095).
+     - Example: if pot outputs 1.65V, result ≈ 2048 (half of 4095).
+  */
+
+  float voltage = (sensorValue / 4095.0) * 3.3;
+  /*
+  ⚙️ Convert digital value back into actual voltage
+     - sensorValue / 4095.0 → gives fraction of full-scale voltage.
+     - Multiply by 3.3 (ESP32 reference voltage) to get true voltage in volts.
+     - This helps you display a real-world number instead of raw ADC value.
+  */
+
+  Serial.print("Sensor Value: ");
+  Serial.print(sensorValue);
+  Serial.print(" | Voltage: ");
+  Serial.println(voltage, 2);
+  /*
+  🧾 Serial.print() & Serial.println()
+     - Used to display both the digital ADC reading and the calculated voltage.
+     - `Serial.print()` keeps cursor on same line; `println()` moves to next.
+     - The ‘2’ in println(voltage, 2) prints voltage up to 2 decimal places.
+  */
+
+
+  if (sensorValue > threshold) {
+    Serial.println("⚠️ ALERT: Environmental threshold exceeded!");
+  } else {
+    Serial.println("✅ Environment is normal.");
+  }
+  /*
+  🚨 if-else condition
+     - Checks if potentiometer reading is above defined threshold.
+     - If yes → prints an alert message.
+     - If not → prints environment normal.
+     - In real-world scenario, threshold could represent temperature, gas level, etc.
+  */
+
+
+  delay(2000);
+  /*
+  ⏳ delay(2000)
+     - Pauses program for 2000 milliseconds (2 seconds) before next reading.
+     - Prevents flooding of serial monitor with too many messages.
+  */
+}
+
+
+
+
+
+
+
+//viva
+/*
+| Question                                    | Ideal Short Answer                                                                            |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| What is analogRead()?                       | Function that reads voltage from analog pin and converts it into a digital value (0–4095).    |
+| What is the range of ADC in ESP32?          | 0–3.3V corresponding to 0–4095 digital value (12-bit ADC).                                    |
+| Why use delay()?                            | To slow down readings and stabilize sensor outputs.                                           |
+| What is Serial.begin()?                     | Initializes serial communication with computer at a given baud rate.                          |
+| What is baud rate?                          | Speed of data transfer over serial communication, measured in bits per second.                |
+| What is the function of potentiometer here? | Acts as an analog sensor providing varying voltage to simulate environmental change.          |
+| Why threshold = 2500?                       | It represents a limit beyond which environment is considered critical; chosen experimentally. |
+1. What is a potentiometer?
+
+A potentiometer is a variable resistor that changes its resistance when you rotate its knob.
+It has three pins — one connected to 3.3V, one to GND, and the middle pin (wiper) gives an analog voltage output between 0V and 3.3V.
+
+What is a resistor and why do we use it?
+
+A resistor limits the current in a circuit to protect components like LEDs and sensors from damage.
+
+| Term               | Meaning                                                     | Unit       |
+| ------------------ | ----------------------------------------------------------- | ---------- |
+| **Voltage (V)**    | Electrical pressure that pushes electrons through a circuit | Volt (V)   |
+| **Current (I)**    | Flow of electrons through a conductor                       | Ampere (A) |
+| **Resistance (R)** | Opposition to current flow                                  | Ohm (Ω)    |
+
+5. What is an ADC (Analog to Digital Converter)?
+
+It’s a hardware module inside microcontrollers that converts continuous analog voltage into a digital number.
+For ESP32, ADC is 12-bit, meaning it gives values from 0 to 4095 for voltages between 0V and 3.3V.
+
+pins type
+| Type        | Signal Type                 | Function               | Example             |
+| ----------- | --------------------------- | ---------------------- | ------------------- |
+| **Digital** | Only HIGH (1) or LOW (0)    | Used for buttons, LEDs | GPIO 2, 13, etc.    |
+| **Analog**  | Continuous voltage (0–3.3V) | Used for sensors       | GPIO 32–39 on ESP32 |
+
+Q) main components of iot 
+| Layer                 | Function                      | Example                                |
+| --------------------- | ----------------------------- | -------------------------------------- |
+| **Sensing Layer**     | Collect data from environment | Sensors like DHT11, LDR, potentiometer |
+| **Network Layer**     | Transmit data                 | Wi-Fi, MQTT, Bluetooth                 |
+| **Processing Layer**  | Analyze and store data        | Cloud or local microcontroller         |
+| **Application Layer** | User interface and control    | Webpage, mobile app, dashboard         |
+
+
+1. HTTP (Hypertext Transfer Protocol)
+request-response protocol, The client (browser) sends a request to the server (ESP32) and The server processes it and sends back a response (HTML or data)
+
+2 MQTT (Message Queuing Telemetry Transport)
+
+Publish–Subscribe protocol , Devices connect to a central Broker (server).
+which communicates with Publishers and it send data to subscriber.
+Subscribers receive that data.
+
+3 CoAP (Constrained Application Protocol)
+
+Lightweight Request–Response (like HTTP but for low-power devices)
+
+
+| Feature           | TCP                             | UDP                            |
+| ----------------- | ------------------------------- | ------------------------------ |
+| Type              | Connection-oriented             | Connectionless                 |
+| Reliability       | Reliable (ACK + retransmission) | Unreliable (no ACK)            |
+| Order of Data     | Maintained                      | Not guaranteed                 |
+| Overhead          | High                            | Low                            |
+| Speed             | Slower                          | Faster                         |
+| Power Consumption | Higher                          | Lower                          |
+| Use in IoT        | HTTP, MQTT                      | CoAP, sensor-level data        |
+| Example           | Web server communication        | Smart lights or sensor beacons |
+*/
+
+
+
+
+
+// Alert Message System using Arduino + Potentiometer
+
+const int potPin = A0;        // Analog pin connected to potentiometer
+const int threshold = 512;    // Midpoint (range 0-1023 for Arduino UNO)
+
+void setup() {
+  Serial.begin(9600);
+  delay(1000);
+  Serial.println("System Ready: Monitoring Environment...");
+}
+
+void loop() {
+  int sensorValue = analogRead(potPin);
+  float voltage = (sensorValue / 1023.0) * 5.0; // Convert to voltage (0–5V)
+
+  Serial.print("Sensor Value: ");
+  Serial.print(sensorValue);
+  Serial.print(" | Voltage: ");
+  Serial.println(voltage, 2);
+
+  if (sensorValue > threshold) {
+    Serial.println("⚠️ ALERT: Environmental threshold exceeded!");
+  } else {
+    Serial.println("✅ Environment is normal.");
+  }
+
+  delay(2000);
+}
+| Potentiometer Pin                        | Connects To            | Description                                              |
+| ---------------------------------------- | ---------------------- | -------------------------------------------------------- |
+| **VCC (or +, sometimes marked as “5V”)** | **5V pin on Arduino**  | Provides power to potentiometer                          |
+| **GND (or –)**                           | **GND pin on Arduino** | Ground connection                                        |
+| **SIG (middle pin / wiper)**             | **A0 pin on Arduino**  | Sends variable voltage (0–5V) depending on knob position |

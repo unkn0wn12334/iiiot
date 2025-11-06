@@ -1,0 +1,228 @@
+#include <WiFi.h>
+#include <WebServer.h>
+
+const char* ssid = "YOUR_WIFI_SSID";       // 🔹 Replace with your Wi-Fi name
+const char* password = "YOUR_WIFI_PASSWORD"; // 🔹 Replace with your Wi-Fi password
+
+const int potPin = 34; // Potentiometer pin (Analog input)
+int potValue = 0;
+
+// Create web server on port 80
+WebServer server(80);
+
+// Function to handle webpage requests
+void handleRoot() {
+  potValue = analogRead(potPin);
+  String html = "<html>\
+  <head><title>ESP32 Sensor Data</title></head>\
+  <body style='font-family: Arial; text-align: center; margin-top: 50px;'>\
+  <h1>ESP32 Potentiometer Data</h1>\
+  <p>Current Potentiometer Value: <strong>" + String(potValue) + "</strong></p>\
+  <p>Refresh this page to update value.</p>\
+  </body></html>";
+  server.send(200, "text/html", html);
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(potPin, INPUT);
+
+  Serial.println();
+  Serial.println("Connecting to WiFi...");
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("\nConnected!");
+  Serial.print("ESP32 IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  // Handle root URL
+  server.on("/", HTTP_GET, handleRoot);
+
+  // Start the server
+  server.begin();
+  Serial.println("Web server started...");
+}
+
+void loop() {
+  server.handleClient(); // Handle client requests
+  delay(100);
+}
+
+
+
+
+
+
+
+1. What is a potentiometer?
+
+A potentiometer is a variable resistor that changes its resistance when you rotate its knob.
+It has three pins — one connected to 3.3V, one to GND, and the middle pin (wiper) gives an analog voltage output between 0V and 3.3V.
+
+What is a resistor and why do we use it?
+
+A resistor limits the current in a circuit to protect components like LEDs and sensors from damage.
+
+| Term               | Meaning                                                     | Unit       |
+| ------------------ | ----------------------------------------------------------- | ---------- |
+| **Voltage (V)**    | Electrical pressure that pushes electrons through a circuit | Volt (V)   |
+| **Current (I)**    | Flow of electrons through a conductor                       | Ampere (A) |
+| **Resistance (R)** | Opposition to current flow                                  | Ohm (Ω)    |
+
+5. What is an ADC (Analog to Digital Converter)?
+
+It’s a hardware module inside microcontrollers that converts continuous analog voltage into a digital number.
+For ESP32, ADC is 12-bit, meaning it gives values from 0 to 4095 for voltages between 0V and 3.3V.
+
+pins type
+| Type        | Signal Type                 | Function               | Example             |
+| ----------- | --------------------------- | ---------------------- | ------------------- |
+| **Digital** | Only HIGH (1) or LOW (0)    | Used for buttons, LEDs | GPIO 2, 13, etc.    |
+| **Analog**  | Continuous voltage (0–3.3V) | Used for sensors       | GPIO 32–39 on ESP32 |
+
+Q) main components of iot 
+| Layer                 | Function                      | Example                                |
+| --------------------- | ----------------------------- | -------------------------------------- |
+| **Sensing Layer**     | Collect data from environment | Sensors like DHT11, LDR, potentiometer |
+| **Network Layer**     | Transmit data                 | Wi-Fi, MQTT, Bluetooth                 |
+| **Processing Layer**  | Analyze and store data        | Cloud or local microcontroller         |
+| **Application Layer** | User interface and control    | Webpage, mobile app, dashboard         |
+
+
+1. HTTP (Hypertext Transfer Protocol)
+request-response protocol, The client (browser) sends a request to the server (ESP32) and The server processes it and sends back a response (HTML or data)
+
+2 MQTT (Message Queuing Telemetry Transport)
+
+Publish–Subscribe protocol , Devices connect to a central Broker (server).
+which communicates with Publishers and it send data to subscriber.
+Subscribers receive that data.
+
+3 CoAP (Constrained Application Protocol)
+
+Lightweight Request–Response (like HTTP but for low-power devices)
+
+
+| Feature           | TCP                             | UDP                            |
+| ----------------- | ------------------------------- | ------------------------------ |
+| Type              | Connection-oriented             | Connectionless                 |
+| Reliability       | Reliable (ACK + retransmission) | Unreliable (no ACK)            |
+| Order of Data     | Maintained                      | Not guaranteed                 |
+| Overhead          | High                            | Low                            |
+| Speed             | Slower                          | Faster                         |
+| Power Consumption | Higher                          | Lower                          |
+| Use in IoT        | HTTP, MQTT                      | CoAP, sensor-level data        |
+| Example           | Web server communication        | Smart lights or sensor beacons |
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <WiFi.h>          // 📡 Library for Wi-Fi connectivity on ESP32
+#include <WebServer.h>     // 🌐 Library for creating a simple HTTP web server
+
+// ============================================================
+// 🔹 Wi-Fi credentials (update these to your own network)
+// ============================================================
+const char* ssid = "YOUR_WIFI_SSID";        // Wi-Fi name (SSID)
+const char* password = "YOUR_WIFI_PASSWORD"; // Wi-Fi password
+
+// ============================================================
+// 🎛 Sensor (Potentiometer) Configuration
+// ============================================================
+const int potPin = 34;  // GPIO 34 → Analog input pin connected to potentiometer
+int potValue = 0;       // Variable to store sensor reading (0–4095 on ESP32)
+
+// ============================================================
+// 🌐 Create Web Server Object on Port 80 (Default HTTP Port)
+// ============================================================
+WebServer server(80);  
+// The WebServer class simplifies handling HTTP requests (GET, POST, etc.)
+// Port 80 is the standard HTTP port used by browsers.
+
+// ============================================================
+// 🖥 Function to Handle Root Webpage Requests
+// ============================================================
+void handleRoot() {
+  potValue = analogRead(potPin);  
+  // Read analog voltage from potentiometer (range 0–4095)
+
+  // Create dynamic HTML page displaying potentiometer value
+  String html = "<html>\
+  <head><title>ESP32 Sensor Data</title></head>\
+  <body style='font-family: Arial; text-align: center; margin-top: 50px;'>\
+  <h1>ESP32 Potentiometer Data</h1>\
+  <p>Current Potentiometer Value: <strong>" + String(potValue) + "</strong></p>\
+  <p>Refresh this page to update value.</p>\
+  </body></html>";
+
+  // Send the HTML response to client browser
+  server.send(200, "text/html", html);
+  // 200 → HTTP OK status, "text/html" → content type, then send HTML code
+}
+
+// ============================================================
+// ⚙️ SETUP — Runs Once When ESP32 Starts
+// ============================================================
+void setup() {
+  Serial.begin(115200);  
+  // Initialize Serial Monitor for debugging (115200 baud rate)
+
+  pinMode(potPin, INPUT);
+  // Set potentiometer pin as input to read analog values
+
+  Serial.println();
+  Serial.println("Connecting to WiFi...");
+  WiFi.begin(ssid, password);
+  // Start connecting to the Wi-Fi network using credentials above
+
+  // Wait until connected
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");  // Print dots while connecting
+  }
+
+  // When connected, print confirmation + assigned IP address
+  Serial.println("\nConnected!");
+  Serial.print("ESP32 IP Address: ");
+  Serial.println(WiFi.localIP());
+  // This IP address is used to access the webpage from browser
+
+  // ============================================================
+  // 🧠 Define URL Routes and Server Actions
+  // ============================================================
+  server.on("/", HTTP_GET, handleRoot);
+  // When user visits the root URL ("/") via GET request,
+  // call the handleRoot() function above to display webpage.
+
+  server.begin();  
+  // Start the web server so it begins listening for requests
+  Serial.println("Web server started...");
+}
+
+// ============================================================
+// 🔁 LOOP — Runs Continuously
+// ============================================================
+void loop() {
+  server.handleClient();
+  // This keeps the server running and processes incoming client requests
+  // Whenever a browser connects, handleClient() triggers the assigned route ("/")
+  
+  delay(100);
+  // Short delay to prevent overwhelming the CPU
+}

@@ -1,0 +1,221 @@
+# ==========================================================
+# 🌡️ Industrial IoT Data Visualization Practical (CSV Version)
+# ==========================================================
+# Subject: Industrial Internet of Things | SEM I
+# Department of AI & DS | ADYPSOE
+# ----------------------------------------------------------
+
+# STEP 1️⃣ — Import Libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from google.colab import files
+
+# STEP 2️⃣ — Upload IoT CSV File
+uploaded = files.upload()  # 📂 Upload your CSV file here
+
+# Replace with your actual file name below
+df = pd.read_csv("/content/Crop_recommendation.csv")
+
+# STEP 3️⃣ — Inspect Data
+print("✅ Dataset Loaded Successfully!\n")
+print("📊 Dataset Info:")
+print(df.info())
+print("\n📋 First few records:")
+display(df.head())
+
+# STEP 4️⃣ — Select Temperature and Humidity Columns
+# Assuming first col = Temperature, second col = Humidity
+temperature = df.iloc[:, 0]
+humidity = df.iloc[:, 1]
+
+# ==========================================================
+# 📆 1-Day (24 Hours) Visualization
+# ==========================================================
+temp_24 = temperature[:24]
+humidity_24 = humidity[:24]
+hours_24 = list(range(1, 25))
+
+# --- Temperature (24 Hours)
+plt.figure(figsize=(10, 5))
+plt.plot(hours_24, temp_24, color='red', marker='o', linewidth=2)
+plt.title("Temperature Readings - 1 Day (24 Hours)")
+plt.xlabel("Hour of the Day")
+plt.ylabel("Temperature (°C)")
+plt.grid(True)
+plt.show()
+
+# --- Humidity (24 Hours)
+plt.figure(figsize=(10, 5))
+plt.plot(hours_24, humidity_24, color='blue', marker='o', linewidth=2)
+plt.title("Humidity Readings - 1 Day (24 Hours)")
+plt.xlabel("Hour of the Day")
+plt.ylabel("Humidity (%)")
+plt.grid(True)
+plt.show()
+
+# ==========================================================
+# 📆 2-Day (48 Hours) Visualization
+# ==========================================================
+temp_48 = temperature[:48]
+humidity_48 = humidity[:48]
+hours_48 = list(range(1, 49))
+
+# --- Temperature (48 Hours)
+plt.figure(figsize=(10, 5))
+plt.plot(hours_48, temp_48, color='orange', marker='o', linewidth=2)
+plt.title("Temperature Readings - 2 Days (48 Hours)")
+plt.xlabel("Hour (0–48)")
+plt.ylabel("Temperature (°C)")
+plt.grid(True)
+plt.show()
+
+# --- Humidity (48 Hours)
+plt.figure(figsize=(10, 5))
+plt.plot(hours_48, humidity_48, color='green', marker='o', linewidth=2)
+plt.title("Humidity Readings - 2 Days (48 Hours)")
+plt.xlabel("Hour (0–48)")
+plt.ylabel("Humidity (%)")
+plt.grid(True)
+plt.show()
+
+# ==========================================================
+# 💧 Scatter Plots for Better Visualization
+# ==========================================================
+plt.figure(figsize=(8, 5))
+plt.scatter(hours_24, humidity_24, color='purple')
+plt.title("Scatter Plot - Humidity (1 Day)")
+plt.xlabel("Hour (0–24)")
+plt.ylabel("Humidity (%)")
+plt.grid(True)
+plt.show()
+
+plt.figure(figsize=(8, 5))
+plt.scatter(hours_48, humidity_48, color='brown')
+plt.title("Scatter Plot - Humidity (2 Days)")
+plt.xlabel("Hour (0–48)")
+plt.ylabel("Humidity (%)")
+plt.grid(True)
+plt.show()
+
+# ==========================================================
+# 🌤️ Optional — Combined Temperature vs Humidity Relation
+# ==========================================================
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x=temperature[:48], y=humidity[:48], color='teal')
+plt.title("Temperature vs Humidity (First 48 Hours)")
+plt.xlabel("Temperature (°C)")
+plt.ylabel("Humidity (%)")
+plt.grid(True)
+plt.show()
+
+print("\n✅ Visualization Complete — You can now interpret temperature & humidity patterns for 24 hrs and 48 hrs.")
+
+
+
+
+
+
+
+# 🧠 Interpretation & Observations (Based on Your Dataset)
+# 🌡️ Temperature Graph (1-Day, 24 hrs)
+
+# The temperature gradually increases through the morning.
+
+# Around midday (~12 PM), it reaches its peak value, showing the hottest period of the day.
+
+# After 12 PM, temperature slowly drops toward evening and night, showing a natural cooling pattern.
+
+# This confirms the diurnal pattern (temperature rises with sunlight, falls after sunset).
+
+# ✅ Say this in viva:
+
+# “From the 24-hour temperature graph, I observed that the temperature peaks around noon and decreases at night — showing the normal day-night variation caused by solar heating.”
+
+# 🌡️ Temperature Graph (2-Day, 48 hrs)
+
+# The same pattern repeats every 24 hours.
+
+# There’s a clear cyclic rise and fall — two peaks roughly 12 hours apart each day.
+
+# On both days, the peak is around 12 PM (hour 12 and 36) and lowest temperature near midnight (hour 24 and 48).
+
+# ✅ Say this in viva:
+
+# “In the 48-hour plot, temperature follows a cyclic pattern repeating every 24 hours — high during the day, low at night — matching natural environmental cycles.”
+
+# 💧 Humidity Graph (1-Day, 24 hrs)
+
+# Humidity shows an inverse pattern to temperature.
+
+# It’s lowest around noon (when temperature is high) and highest at night (when temperature is low).
+
+# This is because warm air holds more moisture, and as temperature drops, humidity percentage increases.
+
+# ✅ Say this in viva:
+
+# “For one day, humidity decreases when temperature increases, and rises again at night — indicating their inverse relationship.”
+
+# 💧 Humidity Graph (2-Day, 48 hrs)
+
+# The pattern repeats daily, confirming a cyclic behavior.
+
+# Around 1 PM (hour 13 and 37), there’s a visible drop in humidity, and it rises again at night.
+
+# This matches real atmospheric behavior — as sunlight increases, humidity temporarily drops.
+
+# ✅ Say this in viva:
+
+# “Humidity graph for two days shows a repeating cycle — humidity falls around 1 PM and increases again at night, repeating the next day.”
+
+# ⚙️ Scatter Plots (1-Day & 2-Day)
+
+# The scatter plots clearly show fluctuations in humidity over time.
+
+# The cyclic nature (rise and fall) is visible as points forming a wave-like trend.
+
+# It helps visualize that humidity variation is time-dependent and periodic.
+
+# ✅ Say this in viva:
+
+# “The scatter plots show how humidity fluctuates periodically throughout the day, increasing at night and decreasing during midday.”
+
+# 🌍 Final Inference
+
+# The readings confirm a natural environmental rhythm driven by sunlight and temperature.
+
+# Both temperature and humidity follow a 24-hour periodic pattern:
+
+# Temperature peaks in daytime.
+
+# Humidity peaks at night.
+
+# This is expected for regions near the equator, where daytime heating and nighttime cooling are consistent.
+
+# ✅ Say this to conclude:
+
+# “Overall, the IoT data visualization clearly shows a cyclic pattern where temperature and humidity vary inversely over each 24-hour cycle — consistent with natural weather behavior.”
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#viva
+Using IoT devices equipped with temperature and humidity sensors placed in farms — readings were captured automatically every 1 hour.
+
+4️⃣ What sensors are used here?
+
+Temperature Sensor (e.g., DHT11/DHT22, LM35) — measures air temperature in °C.
+
+Humidity Sensor (inbuilt in DHT11/DHT22) — measures percentage of moisture in ai

@@ -1,0 +1,183 @@
+// PIR Motion Sensor Experiment with Arduino
+
+const int pirPin = 2;    // PIR sensor output pin
+const int ledPin = 13;   // LED pin
+
+void setup() {
+  pinMode(pirPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+ /*
+  🧩 Serial.begin(9600)
+     - Starts serial communication between ESP32 and computer.
+     - 115200 is the baud rate (bits per second), meaning data 
+       is transferred at 9600 bits/sec through USB serial port.
+     - This allows us to see sensor readings and alerts in the Serial Monitor.
+  */
+  Serial.println("PIR Motion Sensor Test Starting...");
+  delay(2000); // Allow sensor to stabilize
+}
+
+void loop() {
+  int sensorValue = digitalRead(pirPin); /* It checks whether there is voltage (HIGH) or no voltage (LOW) on that pin. */
+
+  if (sensorValue == HIGH) {
+    Serial.println("⚠️ Motion Detected!");
+    digitalWrite(ledPin, HIGH);
+  } else {
+    Serial.println("✅ No Motion");
+    digitalWrite(ledPin, LOW);
+  }
+
+  delay(1000); // Read every second
+}
+
+
+
+
+
+//viva
+/* PIR (Passive Infrared) sensor detects motion by measuring changes in infrared radiation emitted by warm objects like humans or animals.
+
+🔥 3. Why is it called “Passive”?
+
+Because it doesn’t emit any infrared energy — it only receives or senses the infrared radiation from the surroundings.
+
+🧠 4. How does the PIR sensor work?
+
+It has two slots made of pyroelectric material.
+When a warm body moves in front of it, one slot detects a change in IR level compared to the other, producing a voltage difference that signals motion.
+
+What type of output does a PIR sensor give — analog or digital? Digital output
+
+1. What is Arduino?
+
+Arduino is an open-source microcontroller platform used to build and control electronic projects.
+It includes both hardware (Arduino boards like Uno, Mega, Nano) and software (Arduino IDE for coding and uploading).
+
+⚙️ 2. What is a microcontroller?
+
+A microcontroller is a small computer on a single chip containing a processor (CPU), memory (RAM + Flash), and I/O pins [Digital I/O Pins (0–13)	Read/write digital signals
+Analog Pins (A0–A5)	Read analog voltages
+Power Pins (5V, 3.3V, GND)	Provide power to sensors]
+
+signal -
+
+| Type        | Nature                                        | Example            |
+| ----------- | --------------------------------------------- | ------------------ |
+| **Analog**  | Continuous, can have any voltage between 0–5V | Potentiometer, LDR |
+| **Digital** | Discrete, only 0 or 1 (LOW/HIGH)              | Button, PIR sensor |
+
+*/
+1. What is a potentiometer?
+
+A potentiometer is a variable resistor that changes its resistance when you rotate its knob.
+It has three pins — one connected to 3.3V, one to GND, and the middle pin (wiper) gives an analog voltage output between 0V and 3.3V.
+
+What is a resistor and why do we use it?
+
+A resistor limits the current in a circuit to protect components like LEDs and sensors from damage.
+
+| Term               | Meaning                                                     | Unit       |
+| ------------------ | ----------------------------------------------------------- | ---------- |
+| **Voltage (V)**    | Electrical pressure that pushes electrons through a circuit | Volt (V)   |
+| **Current (I)**    | Flow of electrons through a conductor                       | Ampere (A) |
+| **Resistance (R)** | Opposition to current flow                                  | Ohm (Ω)    |
+
+5. What is an ADC (Analog to Digital Converter)?
+
+It’s a hardware module inside microcontrollers that converts continuous analog voltage into a digital number.
+For ESP32, ADC is 12-bit, meaning it gives values from 0 to 4095 for voltages between 0V and 3.3V.
+
+pins type
+| Type        | Signal Type                 | Function               | Example             |
+| ----------- | --------------------------- | ---------------------- | ------------------- |
+| **Digital** | Only HIGH (1) or LOW (0)    | Used for buttons, LEDs | GPIO 2, 13, etc.    |
+| **Analog**  | Continuous voltage (0–3.3V) | Used for sensors       | GPIO 32–39 on ESP32 |
+
+Q) main components of iot 
+| Layer                 | Function                      | Example                                |
+| --------------------- | ----------------------------- | -------------------------------------- |
+| **Sensing Layer**     | Collect data from environment | Sensors like DHT11, LDR, potentiometer |
+| **Network Layer**     | Transmit data                 | Wi-Fi, MQTT, Bluetooth                 |
+| **Processing Layer**  | Analyze and store data        | Cloud or local microcontroller         |
+| **Application Layer** | User interface and control    | Webpage, mobile app, dashboard         |
+
+
+1. HTTP (Hypertext Transfer Protocol)
+request-response protocol, The client (browser) sends a request to the server (ESP32) and The server processes it and sends back a response (HTML or data)
+
+2 MQTT (Message Queuing Telemetry Transport)
+
+Publish–Subscribe protocol , Devices connect to a central Broker (server).
+which communicates with Publishers and it send data to subscriber.
+Subscribers receive that data.
+
+3 CoAP (Constrained Application Protocol)
+
+Lightweight Request–Response (like HTTP but for low-power devices)
+
+
+| Feature           | TCP                             | UDP                            |
+| ----------------- | ------------------------------- | ------------------------------ |
+| Type              | Connection-oriented             | Connectionless                 |
+| Reliability       | Reliable (ACK + retransmission) | Unreliable (no ACK)            |
+| Order of Data     | Maintained                      | Not guaranteed                 |
+| Overhead          | High                            | Low                            |
+| Speed             | Slower                          | Faster                         |
+| Power Consumption | Higher                          | Lower                          |
+| Use in IoT        | HTTP, MQTT                      | CoAP, sensor-level data        |
+| Example           | Web server communication        | Smart lights or sensor beacons |
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// PIR Motion Sensor with ESP32
+const int pirPin = 23;   // PIR sensor output pin (GPIO 23)
+const int ledPin = 2;    // Built-in LED on most ESP32 boards
+
+void setup() {
+  pinMode(pirPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(115200);  // ESP32 prefers higher baud rate
+  Serial.println("PIR Motion Sensor Test Starting...");
+  delay(2000); // Allow PIR to stabilize
+}
+
+void loop() {
+  int sensorValue = digitalRead(pirPin);
+
+  if (sensorValue == HIGH) {
+    Serial.println("⚠️ Motion Detected!");
+    digitalWrite(ledPin, HIGH);
+  } else {
+    Serial.println("✅ No Motion");
+    digitalWrite(ledPin, LOW);
+  }
+
+  delay(1000);
+}
+| PIR Sensor Pin | ESP32 Pin                                      | Description                                  |
+| -------------- | ---------------------------------------------- | -------------------------------------------- |
+| **VCC**        | **3.3V**                                       | Power supply (⚠️ use 3.3V, not 5V)           |
+| **OUT**        | **GPIO 23** *(you can choose any digital pin)* | Signal output                                |
+| **GND**        | **GND**                                        | Ground                                       |
+| **LED +**      | **GPIO 2** *(built-in LED)*                    | Indicator                                    |
+| **LED −**      | **GND**                                        | Through 220Ω resistor (if external LED used) |

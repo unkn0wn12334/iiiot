@@ -1,0 +1,373 @@
+#include <WiFi.h>  
+// 📡 Include the built-in ESP32 Wi-Fi library
+//    It provides functions to connect to Wi-Fi networks and create web servers
+
+// ============================================================
+// 🔧 Wi-Fi Credentials (change these to your Wi-Fi name and password)
+// ============================================================
+const char* ssid = "Wokwi-GUEST";   // Wi-Fi SSID (Network Name)
+const char* password = "";          // Wi-Fi Password (Blank for Wokwi)
+
+// ============================================================
+// 💡 LED Pin Configuration
+// ============================================================
+const int led1 = 12;  // GPIO 12 connected to LED 1
+const int led2 = 14;  // GPIO 14 connected to LED 2
+
+// ============================================================
+// 🌐 Create Web Server Object on Port 80 (Default HTTP Port)
+// ============================================================
+WiFiServer server(80);  
+// This creates a simple web server that listens for incoming connections on port 80
+
+// ============================================================
+// 🚀 SETUP FUNCTION — Runs Once When ESP32 Starts
+// ============================================================
+void setup() {
+  Serial.begin(115200);  
+  // Starts serial communication at 115200 baud rate
+  // Used to print debug messages to Serial Monitor
+
+  pinMode(led1, OUTPUT);  
+  pinMode(led2, OUTPUT);  
+  // Set LED pins as OUTPUT so we can control them via digitalWrite()
+
+  digitalWrite(led1, LOW);
+  digitalWrite(led2, LOW);
+  // Initialize LEDs in OFF state
+
+  Serial.println("Connecting to Wi-Fi...");
+  WiFi.begin(ssid, password);
+  // Start connecting ESP32 to the Wi-Fi network using provided SSID and password
+
+  // Wait until connection is successful
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");  // Print dots while connecting
+  }
+
+  // Once connected, print confirmation and IP address
+  Serial.println("\nWi-Fi connected!");
+  Serial.print("ESP32 Web Server IP: ");
+  Serial.println(WiFi.localIP());  
+  // Prints local IP (e.g., 192.168.1.xx) — use this IP in browser to open webpage
+
+  server.begin();  
+  // Start the web server
+}
+
+// ============================================================
+// 🔁 LOOP FUNCTION — Runs Continuously
+// ============================================================
+void loop() {
+  WiFiClient client = server.available();
+  // Checks if any client (like browser) is trying to connect to the ESP32 server
+  // Returns a client object representing that connection
+
+  if (!client) return;
+  // If no client is connected, do nothing and return to top of loop
+
+  Serial.println("New Client Connected.");
+
+  String request = client.readStringUntil('\r');
+  // Reads the first line of the HTTP request sent by browser
+  // Example request: "GET /12/on HTTP/1.1"
+  // '\r' means carriage return → end of line in HTTP header
+
+  Serial.println(request);
+  client.flush();  
+  // Clear any remaining data in buffer
+
+  // ============================================================
+  // 💡 CONTROL LOGIC FOR LED 1 (GPIO 12)
+  // ============================================================
+  if (request.indexOf("/12/on") != -1) {
+    digitalWrite(led1, HIGH);   // Turn ON LED 1 if request contains "/12/on"
+  } else if (request.indexOf("/12/off") != -1) {
+    digitalWrite(led1, LOW);    // Turn OFF LED 1 if request contains "/12/off"
+  }
+
+  // ============================================================
+  // 💡 CONTROL LOGIC FOR LED 2 (GPIO 14)
+  // ============================================================
+  if (request.indexOf("/14/on") != -1) {
+    digitalWrite(led2, HIGH);   // Turn ON LED 2 if request contains "/14/on"
+  } else if (request.indexOf("/14/off") != -1) {
+    digitalWrite(led2, LOW);    // Turn OFF LED 2 if request contains "/14/off"
+  }
+
+  // ============================================================
+  // 🌐 GENERATE HTML WEBPAGE DYNAMICALLY
+  // ============================================================
+  String html = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1'>";
+  html += "<title>ESP32 CPS WebServer</title>";
+  html += "<style>body{font-family:Arial;text-align:center;background-color:#f4f4f4;}button{padding:12px;margin:10px;font-size:18px;border:none;border-radius:8px;} .on{background-color:green;color:white;} .off{background-color:red;color:white;}</style></head>";
+  html += "<body><h2>ESP32 Cyber Physical System</h2><p>Monitor & Control LEDs</p>";
+
+  // Section for LED 1
+  html += "<h3>LED 1 (GPIO 12)</h3>";
+  html += "<a href='/12/on'><button class='on'>ON</button></a>";
+  html += "<a href='/12/off'><button class='off'>OFF</button></a>";
+  html += "<p>Status: " + String(digitalRead(led1) ? "ON" : "OFF") + "</p>";
+
+  // Section for LED 2
+  html += "<h3>LED 2 (GPIO 14)</h3>";
+  html += "<a href='/14/on'><button class='on'>ON</button></a>";
+  html += "<a href='/14/off'><button class='off'>OFF</button></a>";
+  html += "<p>Status: " + String(digitalRead(led2) ? "ON" : "OFF") + "</p>";
+
+  html += "</body></html>";
+  // Builds a complete HTML page dynamically in one string
+  // Buttons link to /12/on or /12/off etc., which trigger LED control
+
+  // ============================================================
+  // 📨 SEND RESPONSE BACK TO CLIENT (Browser)
+  // ============================================================
+  client.print("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n");
+  // Send HTTP response headers → tells browser "OK" and "Content is HTML"
+  client.print(html);
+  // Send the HTML content
+
+  client.stop();  
+  // Close the connection with this client (browser)
+  Serial.println("Client disconnected.");
+}
+
+
+
+
+
+
+//viva
+/* What is a Cyber Physical System (CPS)?
+
+It’s a system where physical devices (sensors/actuators) interact with cyber components (software, networks) for monitoring and control — like smart homes, factories, etc.
+
+3️⃣ Why use ESP32?
+
+ESP32 has inbuilt Wi-Fi and Bluetooth, making it perfect for IoT applications where devices connect and are controlled wirelessly.
+
+4️⃣ What is the role of the web server here?
+
+It lets users control physical devices (LEDs) through a webpage interface, hosted by the ESP32 itself.
+21️⃣ What is the difference between a web server and a web client?
+
+Server hosts and responds to requests (ESP32).
+
+Client sends requests and displays the response (your browser).
+
+22️⃣ What happens when you click the ON button on webpage?
+
+The browser sends a GET request (/12/on) to the ESP32 → ESP32 detects it → sets GPIO12 HIGH → LED turns ON → updated status shown. */
+
+1. What is a potentiometer?
+
+A potentiometer is a variable resistor that changes its resistance when you rotate its knob.
+It has three pins — one connected to 3.3V, one to GND, and the middle pin (wiper) gives an analog voltage output between 0V and 3.3V.
+
+What is a resistor and why do we use it?
+
+A resistor limits the current in a circuit to protect components like LEDs and sensors from damage.
+
+| Term               | Meaning                                                     | Unit       |
+| ------------------ | ----------------------------------------------------------- | ---------- |
+| **Voltage (V)**    | Electrical pressure that pushes electrons through a circuit | Volt (V)   |
+| **Current (I)**    | Flow of electrons through a conductor                       | Ampere (A) |
+| **Resistance (R)** | Opposition to current flow                                  | Ohm (Ω)    |
+
+5. What is an ADC (Analog to Digital Converter)?
+
+It’s a hardware module inside microcontrollers that converts continuous analog voltage into a digital number.
+For ESP32, ADC is 12-bit, meaning it gives values from 0 to 4095 for voltages between 0V and 3.3V.
+
+pins type
+| Type        | Signal Type                 | Function               | Example             |
+| ----------- | --------------------------- | ---------------------- | ------------------- |
+| **Digital** | Only HIGH (1) or LOW (0)    | Used for buttons, LEDs | GPIO 2, 13, etc.    |
+| **Analog**  | Continuous voltage (0–3.3V) | Used for sensors       | GPIO 32–39 on ESP32 |
+
+Q) main components of iot 
+| Layer                 | Function                      | Example                                |
+| --------------------- | ----------------------------- | -------------------------------------- |
+| **Sensing Layer**     | Collect data from environment | Sensors like DHT11, LDR, potentiometer |
+| **Network Layer**     | Transmit data                 | Wi-Fi, MQTT, Bluetooth                 |
+| **Processing Layer**  | Analyze and store data        | Cloud or local microcontroller         |
+| **Application Layer** | User interface and control    | Webpage, mobile app, dashboard         |
+
+
+1. HTTP (Hypertext Transfer Protocol)
+request-response protocol, The client (browser) sends a request to the server (ESP32) and The server processes it and sends back a response (HTML or data)
+
+2 MQTT (Message Queuing Telemetry Transport)
+
+Publish–Subscribe protocol , Devices connect to a central Broker (server).
+which communicates with Publishers and it send data to subscriber.
+Subscribers receive that data.
+
+3 CoAP (Constrained Application Protocol)
+
+Lightweight Request–Response (like HTTP but for low-power devices)
+
+
+| Feature           | TCP                             | UDP                            |
+| ----------------- | ------------------------------- | ------------------------------ |
+| Type              | Connection-oriented             | Connectionless                 |
+| Reliability       | Reliable (ACK + retransmission) | Unreliable (no ACK)            |
+| Order of Data     | Maintained                      | Not guaranteed                 |
+| Overhead          | High                            | Low                            |
+| Speed             | Slower                          | Faster                         |
+| Power Consumption | Higher                          | Lower                          |
+| Use in IoT        | HTTP, MQTT                      | CoAP, sensor-level data        |
+| Example           | Web server communication        | Smart lights or sensor beacons |
+*/
+
+
+
+
+
+
+
+
+#include <WiFi.h>
+
+// Replace with your network credentials
+const char* ssid = "xelse 2";
+const char* password = "";  // No password for Wokwi-GUEST
+
+// Set web server port number to 80
+WiFiServer server(80);
+
+// Variable to store the HTTP request
+String header;
+
+// Auxiliary variables to store the current output state
+String output12State = "off";
+String output14State = "off";
+
+// Assign output variables to GPIO pins
+const int output12 = 12;
+const int output14 = 14;
+
+// Current time
+unsigned long currentTime = millis();
+// Previous time
+unsigned long previousTime = 0;
+// Define timeout time in milliseconds
+const long timeoutTime = 2000;
+
+void setup() {
+  Serial.begin(115200);
+
+  // Initialize the output variables as outputs
+  pinMode(output12, OUTPUT);
+  pinMode(output14, OUTPUT);
+  
+  // Set outputs to LOW
+  digitalWrite(output12, LOW);
+  digitalWrite(output14, LOW);
+
+  // Connect to Wi-Fi network with SSID and password
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  // Print local IP address and start web server
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
+}
+
+void loop(){
+  WiFiClient client = server.available(); // Listen for incoming clients
+  if (client) { // If a new client connects
+    currentTime = millis();
+    previousTime = currentTime;
+    Serial.println("New Client."); // Print a message out in the serial port
+    String currentLine = ""; // Make a String to hold incoming data from the client
+
+    while (client.connected() && currentTime - previousTime <= timeoutTime) { 
+      currentTime = millis();
+      if (client.available()) { 
+        char c = client.read(); 
+        Serial.write(c); 
+        header += c;
+
+        if (c == '\n') { 
+          if (currentLine.length() == 0) {
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+
+            // Turns the GPIOs on and off
+            if (header.indexOf("GET /12/on") >= 0) {
+              Serial.println("GPIO 12 on");
+              output12State = "on";
+              digitalWrite(output12, HIGH);
+            } else if (header.indexOf("GET /12/off") >= 0) {
+              Serial.println("GPIO 12 off");
+              output12State = "off";
+              digitalWrite(output12, LOW);
+            } else if (header.indexOf("GET /14/on") >= 0) {
+              Serial.println("GPIO 14 on");
+              output14State = "on";
+              digitalWrite(output14, HIGH);
+            } else if (header.indexOf("GET /14/off") >= 0) {
+              Serial.println("GPIO 14 off");
+              output14State = "off";
+              digitalWrite(output14, LOW);
+            }
+
+            // Display the HTML web page
+            client.println("<!DOCTYPE html><html>");
+            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button2 {background-color: #555555;}</style></head>");
+            
+            client.println("<body><h1>ESP32 Web Server</h1>");
+            
+            // Display current state, and ON/OFF buttons for GPIO 12
+            client.println("<p>GPIO 12 - State " + output12State + "</p>");
+            client.println("<p><a href=\"/12/" + String(output12State == "off" ? "on" : "off") + "\">");
+            client.println("<button class=\"button\">" + String(output12State == "off" ? "ON" : "OFF") + "</button></a></p>");
+            
+            // Display current state, and ON/OFF buttons for GPIO 14
+            client.println("<p>GPIO 14 - State " + output14State + "</p>");
+            client.println("<p><a href=\"/14/" + String(output14State == "off" ? "on" : "off") + "\">");
+            client.println("<button class=\"button button2\">" + String(output14State == "off" ? "ON" : "OFF") + "</button></a></p>");
+            
+            client.println("</body></html>");
+            client.println();
+            break;
+          } else {
+            currentLine = "";
+          }
+        } else if (c != '\r') { 
+          currentLine += c;
+        }
+      }
+    }
+    header = "";
+    client.stop();
+    Serial.println("Client disconnected.");
+  }
+}
+
+
+
+
+
+
+
+
+https://github.com/Enjoy-Mechatronics/ESP32-Web-Server
+after all pasting code select board in tools, then click on arrow button next to tick, then go to tool serial monitor and select baud rate to 115200 then press reset push on esp board,then connect pc to wifi of esp and go to the ip address and done
