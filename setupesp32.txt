@@ -1,0 +1,14 @@
+for version see back of it or go connect esp write some code and then go to tools>coredebug>verbose and then upload and then open serial monitor 
+
+setup board-
+
+1 go to files and then preference and then in additional urls https://espressif.github.io/arduino-esp32/package_esp32_index.json paste this
+
+2 open board manager below file icon search for esp32 and install it
+
+3 select the board in tools and correct port, if don't know about port then go to windows device manager and in ports section find it
+
+
+
+
+
